@@ -1,0 +1,6 @@
+{
+	"db": "mongodb://localhost/dev_db",
+	"port": "3000",
+	"debug": "express",
+	"secret": "deepDarkSecret"
+}

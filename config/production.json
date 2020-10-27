@@ -1,0 +1,5 @@
+{
+	"db": "mongodb://localhost/prod_db",
+	"port": "3000",
+	"debug": "express"
+}

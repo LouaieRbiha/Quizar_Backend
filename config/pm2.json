@@ -1,10 +1,14 @@
 {
 	"apps": [
 		{
-			"name": "Quiz-server",
+			"name": "TestMe-server",
 			"script": "index.js",
 			"watch": true,
-			"ignore_watch": ["node_modules", "../api/test"],
+			"ignore_watch": ["../node_modules", "../api/test", "../api/public"],
+			"watch_delay": 1000,
+			"watch_options": {
+				"followSymlinks": false
+			},
 			"env": {
 				"PORT": 3000,
 				"NODE_ENV": "development"

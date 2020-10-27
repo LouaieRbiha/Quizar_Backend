@@ -1,0 +1,31 @@
+const cors = require('cors');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+
+module.exports = (app) => {
+	// Provide a Connect/Express middleware
+	app.use(cors());
+
+	// Security headers
+	app.use(helmet());
+
+	// Prevent XSS attacks
+	app.use(xss());
+
+	const limiter = rateLimit({
+		windowMs: 10 * 60 * 1000, // 10 minutes
+		max: 100, // limit each IP to 100 requests per windowMs
+	});
+
+	// apply limit to all requests
+	app.use(limiter);
+
+	// protect against HTTP Parameter Pollution attacks
+	app.use(hpp());
+
+	// To remove prohibited data
+	app.use(mongoSanitize());
+};

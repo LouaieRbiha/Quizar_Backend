@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
 
-# env config
-/config/.env
+# log files
+/logfile.log
+/uncaughtExceptions.log
