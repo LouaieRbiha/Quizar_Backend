@@ -1,6 +1,6 @@
-# Quiz App
+# Test Plateform
 
-Server for Quiz application.
+Server for Test plateform.
 
 ## 📖 Table of Contents
 
@@ -32,17 +32,13 @@ You need to have installed the following software:
   npm i
 ```
 
-**Please remember that `config/.env` must be implemented for proper work.**
+**Please remember that `config/*.json` must be implemented for proper work.**
 
 ## 📜 Scripts
 
-### Build
-
-- `build`: Builds production ready application.
-
 ### Test
 
-- `test`: Run `mocha`.
+- `test`: Run `jest`.
 
 ### Analyze
 

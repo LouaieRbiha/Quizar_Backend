@@ -12,11 +12,12 @@
 		"delete": "pm2 delete TestMe-server",
 		"log": "pm2 logs TestMe-server",
 		"monit": "pm2 monit TestMe-server",
-		"test": "NODE_ENV=test jest --watchAll --verbose",
+		"test": "NODE_ENV=test jest --watchAll --group=unit/models",
 		"debug": "DEBUG=* npx nodemon index.js",
 		"lint": "eslint --ext .js ./",
 		"format": "prettier --write \"*.js\"",
-		"version": "conventional-changelog -p emojis -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+		"version": "conventional-changelog -p emojis -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+		"audit": "npm audit fix --only=prod"
 	},
 	"keywords": [
 		"Quiz",
@@ -40,13 +41,16 @@
 		"eslint-plugin-prettier": "^3.1.4",
 		"eslint-plugin-react": "^7.21.5",
 		"eslint-plugin-react-hooks": "^4.2.0",
+		"eslint-plugin-security": "^1.4.0",
 		"jest": "^26.6.1",
+		"jest-runner-groups": "^2.0.1",
 		"morgan": "^1.10.0",
 		"nodemon": "^2.0.6",
 		"prettier": "^2.1.2",
 		"supertest": "^5.0.0"
 	},
 	"dependencies": {
+		"bcrypt": "^5.0.0",
 		"config": "^3.3.2",
 		"cookie-parser": "^1.4.5",
 		"cors": "^2.8.5",
