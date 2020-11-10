@@ -3,5 +3,4 @@
 /coverage
 
 # log files
-/logfile.log
-/uncaughtExceptions.log
+/logs

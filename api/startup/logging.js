@@ -4,7 +4,7 @@ const morgan = require('morgan');
 module.exports = (app) => {
 	winston.exceptions.handle(
 		new winston.transports.Console({ colorize: true, prettyPrint: true }),
-		new winston.transports.File({ filename: 'uncaughtExceptions.log' }),
+		new winston.transports.File({ filename: 'logs/uncaughtExceptions.log' }),
 	);
 
 	// Handle unhandled promise rejections
@@ -12,7 +12,7 @@ module.exports = (app) => {
 		throw ex;
 	});
 
-	winston.add(new winston.transports.File({ filename: 'logfile.log' }));
+	winston.add(new winston.transports.File({ filename: 'logs/logfile.log' }));
 
 	//! Dev logging middleware, in dev only
 	if (process.env.NODE_ENV === 'development') {

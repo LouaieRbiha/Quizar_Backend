@@ -14,4 +14,8 @@ const PORT = config.get('port') || process.env.PORT;
 
 const server = app.listen(PORT, winston.info(`Server running on port ${PORT}`));
 
+app.get('/', (req, res) => {
+	res.status(200).send('Hello !');
+});
+
 module.exports = server;
