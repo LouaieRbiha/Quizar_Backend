@@ -4,6 +4,7 @@ const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const mongoSanitize = require('express-mongo-sanitize');
+const compression = require('compression');
 
 module.exports = (app) => {
 	// Provide a Connect/Express middleware
@@ -11,6 +12,9 @@ module.exports = (app) => {
 
 	// Security headers
 	app.use(helmet());
+
+	// Compress response sent to client
+	app.use(compression());
 
 	// Prevent XSS attacks
 	app.use(xss());

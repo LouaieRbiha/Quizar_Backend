@@ -4,7 +4,7 @@
 	"description": "TestMe server responsible for handling client requests, logging, fake auth and many more...",
 	"main": "index.js",
 	"scripts": {
-		"start": "pm2 start config/pm2.json --env production",
+		"start": "pm2 start config/pm2.json --production",
 		"dev": "pm2 start config/pm2.json",
 		"stop": "pm2 stop TestMe-server",
 		"reload": "pm2 reload TestMe-server",
@@ -12,12 +12,15 @@
 		"delete": "pm2 delete TestMe-server",
 		"log": "pm2 logs TestMe-server",
 		"monit": "pm2 monit TestMe-server",
-		"test": "NODE_ENV=test jest --watchAll --group=unit/models",
+		"test": "NODE_ENV=test jest --config=./jest.config.js --watchAll --coverage --group=unit/models --detectOpenHandles --forceExit",
 		"debug": "DEBUG=* npx nodemon index.js",
 		"lint": "eslint --ext .js ./",
 		"format": "prettier --write \"*.js\"",
 		"version": "conventional-changelog -p emojis -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
 		"audit": "npm audit fix --only=prod"
+	},
+	"engines": {
+		"node": "10.19.0"
 	},
 	"keywords": [
 		"Quiz",
@@ -51,6 +54,7 @@
 	},
 	"dependencies": {
 		"bcrypt": "^5.0.0",
+		"compression": "^1.7.4",
 		"config": "^3.3.2",
 		"cookie-parser": "^1.4.5",
 		"cors": "^2.8.5",
