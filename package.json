@@ -4,7 +4,7 @@
 	"description": "TestMe server responsible for handling client requests, logging, fake auth and many more...",
 	"main": "index.js",
 	"scripts": {
-		"start": "pm2 start config/pm2.json --production",
+		"start": "pm2 start config/pm2.json --env production",
 		"dev": "pm2 start config/pm2.json",
 		"stop": "pm2 stop TestMe-server",
 		"reload": "pm2 reload TestMe-server",
