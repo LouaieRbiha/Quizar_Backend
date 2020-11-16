@@ -1,7 +1,8 @@
 {
 	"PORT": "3000",
-	"DB": "mongodb://localhost/prod_db",
+	"DB": "mongodb://localhost/dev_db",
 	"DEBUG": "express",
+	"SECRET": "deepDarkSecret",
 	"REDIS": {
 		"PORT": 6379,
 		"HOSTNAME": "localhost",

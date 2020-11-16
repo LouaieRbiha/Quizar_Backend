@@ -2,8 +2,8 @@ const winston = require('winston');
 const mongoose = require('mongoose');
 const config = require('config');
 
-module.exports = () => {
-	const db = config.get('db');
+module.exports = async () => {
+	const db = config.get('DB');
 
 	mongoose
 		.connect(db, {

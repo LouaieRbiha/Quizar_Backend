@@ -10,7 +10,7 @@ require('./api/startup/routes')(app);
 require('./api/startup/db')();
 require('./api/startup/config')();
 
-const PORT = config.get('port') || process.env.PORT;
+const PORT = config.get('PORT') || process.env.PORT;
 
 const server = app.listen(PORT, winston.info(`Server running on port ${PORT}`));
 
