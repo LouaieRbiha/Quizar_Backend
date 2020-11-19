@@ -52,8 +52,8 @@ module.exports.me = asyncHandler(async (req, res) => {
  * @access      Public
  */
 module.exports.logout = asyncHandler(async (req, res) => {
+	console.log(req.user);
 	req.session = null;
 	req.logOut();
 	res.redirect('/');
-	res.status(400).send('Authentication error');
 });
