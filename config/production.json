@@ -6,5 +6,10 @@
 		"PORT": 6379,
 		"HOSTNAME": "localhost",
 		"PASSWORD": "rMt3jx5xfDcnOFMvVm+G6q1iN2h3A2tT3Eg2Ww7OGZ5+DOTgtSkEWblBof7iW2V9eqDuLnn9VVMG0dUZlouaie@louaie-X556UV"
+	},
+	"OAuth": {
+		"GOOGLE_CLIENT_ID": "",
+		"GOOGLE_CLIENT_SECRET": "",
+		"COOKIE_KEY": ""
 	}
 }

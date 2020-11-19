@@ -10,12 +10,13 @@ require('./api/startup/routes')(app);
 require('./api/startup/db')();
 require('./api/startup/config')();
 
+app.get('/', (req, res) => {
+	const localTime = new Date().toLocaleDateString();
+	res.status(200).send(`Server time is ${localTime}.`);
+});
+
 const PORT = config.get('PORT') || process.env.PORT;
 
 const server = app.listen(PORT, winston.info(`Server running on port ${PORT}`));
-
-app.get('/', (req, res) => {
-	res.status(200).send('Hello !');
-});
 
 module.exports = server;
