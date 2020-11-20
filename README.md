@@ -1,4 +1,6 @@
-# Test Plateform
+# 🕺 Test Plateform
+
+[![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/npm) [![npm version](https://badge.fury.io/js/node.svg)](https://badge.fury.io/js/node)
 
 Server for Test plateform.
 
@@ -47,7 +49,7 @@ You need to have installed the following software:
 
 ### Development
 
-- `start`: Start app in development mode.
+- `dev`: Start app in development mode.
 - `version`: Generates `CHANGELOG` file based on commit messages.
 
 ## 📚 Documentation

@@ -1,11 +1,11 @@
 {
-	"PORT": "3000",
-	"DB": "mongodb://localhost/test_db",
-	"DEBUG": "express",
+	"PORT": "",
+	"DB": "",
+	"DEBUG": "",
 	"REDIS": {
-		"PORT": 6379,
-		"HOSTNAME": "localhost",
-		"PASSWORD": "rMt3jx5xfDcnOFMvVm+G6q1iN2h3A2tT3Eg2Ww7OGZ5+DOTgtSkEWblBof7iW2V9eqDuLnn9VVMG0dUZlouaie@louaie-X556UV"
+		"PORT": "",
+		"HOSTNAME": "",
+		"PASSWORD": ""
 	},
 	"OAuth": {
 		"GOOGLE_CLIENT_ID": "",

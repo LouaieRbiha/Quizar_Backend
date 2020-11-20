@@ -3,6 +3,8 @@
 	"DB": "mongodb://localhost/dev_db",
 	"DEBUG": "express",
 	"SECRET": "deepDarkSecret",
+	"JWT_SECRET": "JWT_SECRET",
+	"JWT_EXPIRE": "10",
 	"REDIS": {
 		"PORT": 6379,
 		"HOSTNAME": "localhost",
