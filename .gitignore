@@ -4,3 +4,6 @@
 
 # log files
 /logs
+
+# others
+/api/_data

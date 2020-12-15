@@ -8,7 +8,16 @@ const compression = require('compression');
 
 module.exports = (app) => {
 	// Provide a Connect/Express middleware
-	app.use(cors());
+	const corsOptions = {
+		origin: '*',
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+		preflightContinue: false,
+		optionsSuccessStatus: 204,
+		credentials: true,
+		exposeHeaders: ['x-auth-token'],
+	};
+
+	app.use(cors(corsOptions));
 
 	// Security headers
 	app.use(helmet());

@@ -1,69 +1,102 @@
+/* eslint-disable security/detect-unsafe-regex */
 const mongoose = require('mongoose');
 const config = require('config');
+const bcrypt = require('bcrypt');
 
-const UserSchema = new Schema({
-	firstName: {
-		type: String,
-		required: [true, 'Please add a first name'],
+const BCRYPT_SALT_ROUNDS = 12;
+
+const UserSchema = new mongoose.Schema(
+	{
+		firstName: {
+			type: String,
+			required: [true, 'Please add a first name'],
+			trim: true,
+			lowercase: true,
+		},
+		lastName: {
+			type: String,
+			required: [true, 'Please add a last name'],
+			trim: true,
+			lowercase: true,
+		},
+		email: {
+			type: String,
+			required: [true, 'please add an email'],
+			unique: true,
+			// eslint-disable-next-line no-useless-escape
+			match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email'],
+			trim: true,
+			lowercase: true,
+		},
+		username: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+		password: {
+			type: String,
+			minlength: 6,
+			// select: false, // do not show the password on select
+		},
+		birthDate: {},
+		picture: {
+			type: String,
+			default: 'https://www.cvwizard.fr/assets/images/default-avatar.png',
+		},
+		genre: {},
+		address: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+		role: {
+			type: String,
+			enum: ['user', 'publisher', 'candidate'],
+			default: 'candidate',
+		},
+		resetPasswordToken: {
+			type: String,
+			required: false,
+		},
+		documents: {}, // string urls of the uploaded files
+		timezone: {},
+		// authorizations: {}, // probably use firebase for realtime stuff in frontend
+		// statistics: {}, can be a schema
+		lastActiveAt: {
+			type: Date,
+			default: Date.now,
+		},
+		// achievement:{}, can be a schema
+		google: {
+			id: { type: String },
+			token: { type: String },
+			required: false,
+		},
+		linkedin: {
+			id: { type: String },
+			token: { type: String },
+			required: false,
+		},
 	},
-	lastName: {
-		type: String,
-		required: [true, 'Please add a last name'],
+	{
+		timestamps: true, // will take care of createdAt & updatedAt
 	},
-	email: {
-		type: String,
-		required: [true, 'please add an email'],
-		unique: true,
-		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email'],
-	},
-	birthDate: {},
-	genre: {},
-	address: {},
-	role: {
-		type: String,
-		enum: ['user', 'publisher'],
-		default: 'user',
-	},
-	password: {
-		type: String,
-		required: [true, 'please add a password'],
-		minlength: 6,
-		select: false, // do not show the password on select
-	},
-	createdAt: {
-		type: Date,
-		default: Date.now,
-	},
-	modifiedAt: {
-		type: Date,
-		default: Date.now,
-	},
-	googleId: {
-		type: String,
-		required: false,
-	},
-	displayName: {
-		type: String,
-		required: false,
-	},
-	resetPasswordToken: {
-		type: String,
-		required: false,
-	},
-	documents: {}, // string urls of the uploaded files
-	timezone: {},
-	authorizations: {}, // probably use firebase for realtime stuff in frontend
-	lastOnline: {},
-	loginId: {},
-	statistics: {},
-});
+);
 
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function (next) {
-	const salt = await bcrypt.genSalt(10);
-	this.password = await bcrypt.hash(this.password, salt);
+	if (!this.google.id && !this.linkedin.id) {
+		const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
+		this.password = await bcrypt.hash(this.password, salt);
+	}
 	next();
 });
+
+// Match password user entered password to hashed password in db
+UserSchema.methods.isValidPassword = async function (password) {
+	const compare = await bcrypt.compare(password, this.password);
+	return compare;
+};
 
 // Sign jwt and return
 UserSchema.methods.getSignedJwtToken = function () {
@@ -77,12 +110,6 @@ UserSchema.methods.getSignedJwtToken = function () {
 			expiresIn: config.get('JWT_SECRET'),
 		},
 	);
-};
-
-// Match password user entered password to hashed password in db
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-	const result = await bcrypt.compare(enteredPassword, this.password);
-	return result;
 };
 
 module.exports.User = mongoose.model('User', UserSchema);

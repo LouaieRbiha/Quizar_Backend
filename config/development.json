@@ -13,6 +13,12 @@
 	"OAuth": {
 		"GOOGLE_CLIENT_ID": "130228690168-jsvc2kf2grcvrs40d1appsf2j6cpbmcj.apps.googleusercontent.com",
 		"GOOGLE_CLIENT_SECRET": "LC-AByUU11d8vzjWGVA68Q6T",
-		"COOKIE_KEY": "123123123"
+		"COOKIE_KEY": "123123123",
+		"GOOGLE_CALLBACK": "/api/v1/auth/google/callback"
+	},
+	"LINKEDIN": {
+		"CLIENT_ID": "77m0x597tuwsdt",
+		"CLIENT_SECRET": "cejbvMYX0TxMSK7Q",
+		"CALLBACK": "/api/v1/auth/linkedin/callback"
 	}
 }

@@ -1,4 +1,9 @@
-# 1.0.0 (2020-11-20)
+# 1.0.0 (2020-12-15)
+
+
+### Features
+
+- Feat: Add User & Test Models ([a9c28a2](https://github.com/LouaieRbiha/Quiz_server/commit/a9c28a2126865741834be33ba7c275383df56e86))
 
 
 ### Miscellaneous

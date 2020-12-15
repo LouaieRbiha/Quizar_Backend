@@ -12,7 +12,7 @@ require('./api/startup/config')();
 
 app.get('/', (req, res) => {
 	const localTime = new Date().toLocaleDateString();
-	res.status(200).send(`Server time is ${localTime}.`);
+	res.status(200).json({ message: `Server time is ${localTime}.` });
 });
 
 const PORT = config.get('PORT') || process.env.PORT;
