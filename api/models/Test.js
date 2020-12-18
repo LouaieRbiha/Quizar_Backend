@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const TestSchema = new mongoose.Schema(
 	{
@@ -6,15 +7,17 @@ const TestSchema = new mongoose.Schema(
 		title: {
 			type: String,
 			required: [true, 'Please add a test name'],
-			minlength: 10,
+			minlength: 6,
 			maxlength: 200,
 		},
 		image: {
 			type: String,
 			default: 'string url for our default test image',
 		},
-		instruction: {
+		instructions: {
 			type: String,
+			minlength: 3,
+			maxlength: 2000,
 		},
 		question: {
 			type: [mongoose.Schema.ObjectId],
@@ -56,7 +59,7 @@ const TestSchema = new mongoose.Schema(
 			enum: ['Beginner', 'Basic', 'Intermediate', 'Advanced', 'Expert'],
 			default: 'Basic',
 		},
-		attempt: {
+		attempts: {
 			type: Number,
 			default: 0,
 		},
@@ -75,4 +78,15 @@ const TestSchema = new mongoose.Schema(
 	},
 );
 
+function validateTest(test) {
+	const schema = Joi.object({
+		title: Joi.string().min(6).max(200).required(),
+		question: Joi.objectId().required(),
+		instructions: Joi.string().min(3).max(2000),
+	});
+
+	return schema.validate(test);
+}
+
+module.exports.validate = validateTest;
 module.exports.Test = mongoose.model('Test', TestSchema);

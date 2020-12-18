@@ -2,6 +2,8 @@
 	"PORT": "",
 	"DB": "",
 	"DEBUG": "",
+	"JWT_SECRET": "JWT_SECRET",
+	"JWT_EXPIRE": "1000",
 	"REDIS": {
 		"PORT": "",
 		"HOSTNAME": "",

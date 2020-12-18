@@ -1,23 +1,26 @@
 /* eslint-disable security/detect-unsafe-regex */
 const mongoose = require('mongoose');
 const config = require('config');
-const bcrypt = require('bcrypt');
-
-const BCRYPT_SALT_ROUNDS = 12;
+const Joi = require('joi');
+const jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema(
 	{
-		firstName: {
+		firstname: {
 			type: String,
 			required: [true, 'Please add a first name'],
 			trim: true,
 			lowercase: true,
+			minlength: 3,
+			maxlength: 50,
 		},
-		lastName: {
+		lastname: {
 			type: String,
 			required: [true, 'Please add a last name'],
 			trim: true,
 			lowercase: true,
+			minlength: 3,
+			maxlength: 50,
 		},
 		email: {
 			type: String,
@@ -27,23 +30,33 @@ const UserSchema = new mongoose.Schema(
 			match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email'],
 			trim: true,
 			lowercase: true,
+			minlength: 3,
+			maxlength: 255,
 		},
 		username: {
 			type: String,
 			trim: true,
 			lowercase: true,
+			minlength: 6,
+			maxlength: 12,
 		},
 		password: {
 			type: String,
-			minlength: 6,
-			// select: false, // do not show the password on select
+			minlength: 3,
+			maxlength: 1024,
+			select: true, // must be false
 		},
-		birthDate: {},
+		birthdate: {
+			type: String,
+		},
 		picture: {
 			type: String,
 			default: 'https://www.cvwizard.fr/assets/images/default-avatar.png',
 		},
-		genre: {},
+		gender: {
+			type: String,
+			enum: ['man', 'woman'],
+		},
 		address: {
 			type: String,
 			trim: true,
@@ -51,22 +64,20 @@ const UserSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['user', 'publisher', 'candidate'],
+			enum: ['admin', 'publisher', 'candidate'],
 			default: 'candidate',
 		},
-		resetPasswordToken: {
-			type: String,
-			required: false,
-		},
+		resetPasswordToken: String,
+		resetPasswordExpire: Date,
 		documents: {}, // string urls of the uploaded files
 		timezone: {},
-		// authorizations: {}, // probably use firebase for realtime stuff in frontend
-		// statistics: {}, can be a schema
+		authorizations: {}, // probably use firebase for realtime stuff in frontend
+		statistics: {}, // can be a schema
 		lastActiveAt: {
 			type: Date,
 			default: Date.now,
 		},
-		// achievement:{}, can be a schema
+		achievements: {}, // can be a schema
 		google: {
 			id: { type: String },
 			token: { type: String },
@@ -83,21 +94,6 @@ const UserSchema = new mongoose.Schema(
 	},
 );
 
-// Encrypt password using bcrypt
-UserSchema.pre('save', async function (next) {
-	if (!this.google.id && !this.linkedin.id) {
-		const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
-		this.password = await bcrypt.hash(this.password, salt);
-	}
-	next();
-});
-
-// Match password user entered password to hashed password in db
-UserSchema.methods.isValidPassword = async function (password) {
-	const compare = await bcrypt.compare(password, this.password);
-	return compare;
-};
-
 // Sign jwt and return
 UserSchema.methods.getSignedJwtToken = function () {
 	return jwt.sign(
@@ -107,9 +103,22 @@ UserSchema.methods.getSignedJwtToken = function () {
 		},
 		config.get('JWT_SECRET'),
 		{
-			expiresIn: config.get('JWT_SECRET'),
+			expiresIn: config.get('JWT_EXPIRE'),
 		},
 	);
 };
 
+function validateUser(user) {
+	const schema = Joi.object({
+		firstname: Joi.string().min(3).max(50).required(),
+		lastname: Joi.string().min(3).max(50).required(),
+		email: Joi.string().min(3).max(255).required().email(),
+		username: Joi.string().min(6).max(12),
+		password: Joi.string().min(3).max(1024),
+	});
+
+	return schema.validate(user);
+}
+
+module.exports.validate = validateUser;
 module.exports.User = mongoose.model('User', UserSchema);

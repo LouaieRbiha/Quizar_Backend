@@ -1,10 +1,12 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middlewares/async');
-require('../utils/passportLocal');
-require('../utils/passportGoogle');
-require('../utils/passportLinkedin');
+
+require('../../config/passportLocal');
+require('../../config/passportGoogle');
+require('../../config/passportLinkedin');
 
 /**
  * @description Login local
@@ -15,25 +17,24 @@ module.exports.signinLocal = asyncHandler(async (req, res, next) => {
 	passport.authenticate('signin', async (err, user, info) => {
 		try {
 			if (err || !user) {
-				const error = new Error('An error occurred.');
-
-				return next(error);
+				const errorMessage = err !== null ? err.message : 'Please provide a valid user credentials';
+				const statusCode = err != null ? err.statusCode : 400;
+				return next(new ErrorResponse(errorMessage, statusCode));
 			}
 
-			req.login(user, { session: false }, async (error) => {
-				if (error) return next(error);
+			req.user = user;
+			req.auth = {
+				id: req.user.id,
+				register: false,
+			};
 
-				// eslint-disable-next-line no-underscore-dangle
-				const body = { _id: user._id, email: user.email };
-				const token = jwt.sign({ user: body }, config.get('JWT_SECRET'));
-
-				return res.json({ token });
-			});
+			next();
 		} catch (error) {
-			return next(error);
+			return next(new ErrorResponse(error.message, error.statusCode));
 		}
 	})(req, res, next);
 });
+
 /**
  * @description Signup local
  * @method      GET /api/v1/auth/signup
@@ -43,19 +44,6 @@ module.exports.signupLocal = passport.authenticate('signup', {
 	session: false,
 	successRedirect: '/',
 	failureRedirect: '/fail',
-});
-
-/**
- * @description Secure local route
- * @method      GET /api/v1/auth/secure
- * @access      Private
- */
-module.exports.secureLocal = asyncHandler(async (req, res, next) => {
-	res.json({
-		message: 'You made it to the secure route',
-		user: req.user,
-		token: req.query.secret_token,
-	});
 });
 
 /**
@@ -73,26 +61,22 @@ module.exports.authenticateGoogle = passport.authenticate('google', {
  * @method      GET /api/v1/auth/google/callback
  * @access      Public
  */
-module.exports.callback = asyncHandler(async (req, res, next) => {
+module.exports.callbackGoogle = asyncHandler(async (req, res, next) => {
 	passport.authenticate('google', { session: false }, async (err, user, info) => {
 		try {
 			if (err || !user) {
-				const error = new Error('An error occurred.');
-
-				return next(error);
+				const errorMessage = err !== null ? err.message : 'Please provide a valid user credentials';
+				const statusCode = err != null ? err.statusCode : 400;
+				return next(new ErrorResponse(errorMessage, statusCode));
 			}
-
-			req.login(user, { session: false }, async (error) => {
-				if (error) return next(error);
-
-				// eslint-disable-next-line no-underscore-dangle
-				const body = { _id: user._id, email: user.email };
-				const token = jwt.sign({ user: body }, config.get('JWT_SECRET'));
-
-				return res.json({ token });
-			});
+			req.user = user;
+			req.auth = {
+				id: req.user.id,
+				register: false,
+			};
+			next();
 		} catch (error) {
-			return next(error);
+			return next(new ErrorResponse(error.message, error.statusCode));
 		}
 	})(req, res, next);
 });
@@ -116,22 +100,18 @@ module.exports.callbackLinkedin = asyncHandler(async (req, res, next) => {
 	passport.authenticate('linkedin', { session: false }, async (err, user, info) => {
 		try {
 			if (err || !user) {
-				const error = new Error('An error occurred.');
-
-				return next(error);
+				const errorMessage = err !== null ? err.message : 'Please provide a valid user credentials';
+				const statusCode = err != null ? err.statusCode : 400;
+				return next(new ErrorResponse(errorMessage, statusCode));
 			}
-
-			req.login(user, { session: false }, async (error) => {
-				if (error) return next(error);
-
-				// eslint-disable-next-line no-underscore-dangle
-				const body = { _id: user._id, email: user.email };
-				const token = jwt.sign({ user: body }, config.get('JWT_SECRET'));
-
-				return res.json({ token });
-			});
+			req.user = user;
+			req.auth = {
+				id: req.user.id,
+				register: false,
+			};
+			next();
 		} catch (error) {
-			return next(error);
+			return next(new ErrorResponse(error.message, error.statusCode));
 		}
 	})(req, res, next);
 });
@@ -141,8 +121,11 @@ module.exports.callbackLinkedin = asyncHandler(async (req, res, next) => {
  * @method      GET /api/v1/auth/me
  * @access      Public
  */
-module.exports.me = asyncHandler(async (req, res) => {
-	res.send(req.user);
+module.exports.getMe = asyncHandler(async (req, res, next) => {
+	const user = await User.findById(req.user);
+	res.status(200).json({
+		data: user,
+	});
 });
 
 /**

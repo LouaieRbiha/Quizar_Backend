@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const AnswerSchema = new mongoose.Schema(
 	{
@@ -15,6 +16,7 @@ const AnswerSchema = new mongoose.Schema(
 		},
 		isCorrect: {
 			type: Boolean,
+			required: true,
 			default: false,
 		},
 	},
@@ -23,4 +25,14 @@ const AnswerSchema = new mongoose.Schema(
 	},
 );
 
+function validateAnswer(answer) {
+	const schema = Joi.object({
+		answer: Joi.objectId().required(),
+		isCorrect: Joi.boolean().required(),
+	});
+
+	return schema.validate(answer);
+}
+
+module.exports.validate = validateAnswer;
 module.exports.Answer = mongoose.model('Answer', AnswerSchema);

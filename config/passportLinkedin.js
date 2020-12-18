@@ -2,7 +2,7 @@
 const passport = require('passport');
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const config = require('config');
-const { User } = require('../models/User');
+const { User } = require('../api/models/User');
 
 passport.use(
 	new LinkedInStrategy(
@@ -11,6 +11,7 @@ passport.use(
 			clientSecret: config.get('LINKEDIN.CLIENT_SECRET'),
 			callbackURL: config.get('LINKEDIN.CALLBACK'),
 			scope: ['r_emailaddress', 'r_liteprofile'],
+			session: false,
 		},
 		function (accessToken, refreshToken, profile, done) {
 			process.nextTick(async () => {
@@ -20,8 +21,8 @@ passport.use(
 						return done(null, existingUser);
 					}
 					const user = await new User({
-						firstName: profile.name.givenName,
-						lastName: profile.name.familyName,
+						firstname: profile.name.givenName,
+						lastname: profile.name.familyName,
 						email: profile.emails[0].value,
 						picture: profile.photos[0].value,
 						'linkedin.id': profile.id,

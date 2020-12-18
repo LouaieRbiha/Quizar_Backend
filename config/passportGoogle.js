@@ -2,7 +2,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const config = require('config');
-const { User } = require('../models/User');
+const { User } = require('../api/models/User');
 
 passport.use(
 	new GoogleStrategy(
@@ -11,6 +11,7 @@ passport.use(
 			clientID: config.get('OAuth.GOOGLE_CLIENT_ID'),
 			clientSecret: config.get('OAuth.GOOGLE_CLIENT_SECRET'),
 			proxy: true,
+			session: false,
 		},
 		async (accessToken, refreshToken, profile, done) => {
 			try {
@@ -19,8 +20,8 @@ passport.use(
 					return done(null, existingUser);
 				}
 				const user = await new User({
-					firstName: profile._json.given_name,
-					lastName: profile._json.family_name,
+					firstname: profile._json.given_name,
+					lastname: profile._json.family_name,
 					email: profile._json.email,
 					picture: profile._json.picture,
 					'google.id': profile._json.sub,

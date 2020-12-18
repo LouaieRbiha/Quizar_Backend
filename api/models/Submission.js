@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const SubmissionSchema = new mongoose.Schema(
 	{
@@ -12,6 +13,8 @@ const SubmissionSchema = new mongoose.Schema(
 			ref: 'Test',
 			required: true,
 		},
+
+		// can be negative (canadian system) ?
 		score: {
 			type: number,
 			default: 0,
@@ -30,4 +33,14 @@ const SubmissionSchema = new mongoose.Schema(
 	},
 );
 
+function validateSubmission(submission) {
+	const schema = Joi.object({
+		user: Joi.objectId().required(),
+		test: Joi.objectId().required(),
+	});
+
+	return schema.validate(submission);
+}
+
+module.exports.validate = validateSubmission;
 module.exports.Submission = mongoose.model('Submission', SubmissionSchema);

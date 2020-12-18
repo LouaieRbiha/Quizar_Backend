@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const QuestionSchema = new mongoose.Schema({
 	question: {
@@ -28,4 +29,14 @@ const QuestionSchema = new mongoose.Schema({
 	},
 });
 
+function validateQuestion(question) {
+	const schema = Joi.object({
+		question: Joi.objectId().required(),
+		answer: Joi.array().objectId().required(),
+	});
+
+	return schema.validate(question);
+}
+
+module.exports.validate = validateQuestion;
 module.exports.Question = mongoose.model('Question', QuestionSchema);
