@@ -8,6 +8,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
 	const removeFields = ['select', 'sort', 'page', 'limit'];
 
 	// Loop over removeFields and delete them from reqQuery
+	// eslint-disable-next-line security/detect-object-injection
 	removeFields.forEach((param) => delete reqQuery[param]);
 
 	// Create query string

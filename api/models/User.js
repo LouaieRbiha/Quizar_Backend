@@ -44,7 +44,7 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			minlength: 3,
 			maxlength: 1024,
-			select: true, // must be false
+			select: false,
 		},
 		birthdate: {
 			type: String,
