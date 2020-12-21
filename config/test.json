@@ -4,6 +4,7 @@
 	"DEBUG": "",
 	"JWT_SECRET": "JWT_SECRET",
 	"JWT_EXPIRE": "1000",
+	"BCRYPT_SALT_ROUNDS": 12,
 	"REDIS": {
 		"PORT": "",
 		"HOSTNAME": "",

@@ -2,46 +2,38 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const { Token } = require('../models/Token');
 const { Blacklist } = require('../models/Blacklist');
+const { User } = require('../models/User');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('./async');
+// eslint-disable-next-line import/order
+const { ObjectId } = require('mongoose').Types;
 
 // Authenticate tokens for protected routes
 module.exports.protect = asyncHandler(async (req, res, next) => {
 	const authHeader = req.headers.authorization;
-
 	const token = authHeader && authHeader.split(' ')[1];
-	console.log('token');
-
-	// eslint-disable-next-line security/detect-possible-timing-attacks
-	if (token === null) return res.sendStatus(401);
+	if (!token) return next(new ErrorResponse('Unauthorized token', 401));
 
 	const found = await Blacklist.findOne({ token });
+	if (found) return next(new ErrorResponse('Unauthorized token', 401));
 
-	if (found) {
-		const details = {
-			Status: 'Failure',
-			Details: 'Token blacklisted. Cannot use this token.',
-		};
+	const payload = jwt.verify(token, config.get('JWT_SECRET'));
 
-		return res.status(401).json(details);
+	const login = await Token.findOne({
+		user: ObjectId(payload.id),
+		_id: ObjectId(payload.token_id),
+	});
+
+	if (login.token_deleted === true) {
+		await Blacklist.create({
+			token,
+		});
+		return next(new ErrorResponse('Unauthorized token', 401));
 	}
 
-	jwt.verify(token, config.get('JWT_SECRET'), async (err, payload) => {
-		if (err) return res.sendStatus(403);
-		if (payload) {
-			const login = await Token.findOne({
-				where: { user_id: payload.id, token_id: payload.token_id },
-			});
-			if (login.token_deleted === true) {
-				await Blacklist.create({
-					token,
-				});
-				return res.sendStatus(401);
-			}
-		}
-		req.user = payload;
-		next();
-	});
+	req.user = await User.findById(payload.id);
+	req.token = payload.token_id;
+	next();
 });
 
 // Grant access to specific roles

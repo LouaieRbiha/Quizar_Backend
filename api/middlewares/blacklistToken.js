@@ -9,6 +9,7 @@ module.exports.blacklistToken = asyncHandler(async (req, res, next) => {
 	const authHeader = req.headers.authorization;
 	const token = authHeader && authHeader.split(' ')[1];
 
+	// eslint-disable-next-line security/detect-possible-timing-attacks
 	if (token === null) return res.sendStatus(401);
 
 	const found = await Blacklist.findOne({ token });

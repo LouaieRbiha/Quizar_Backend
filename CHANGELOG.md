@@ -1,10 +1,15 @@
-# 1.0.0 (2020-12-18)
+# 1.0.0 (2020-12-21)
 
 
 ### Features
 
 - Feat: Add Token based Auth(Google, Linkedin, Local) ([e2712bb](https://github.com/LouaieRbiha/Quiz_server/commit/e2712bb2b5f57e1c8371a74d6b7ad9f8590c766e))
 - Feat: Add User & Test Models ([a9c28a2](https://github.com/LouaieRbiha/Quiz_server/commit/a9c28a2126865741834be33ba7c275383df56e86))
+
+
+### Refactoring & Improvements
+
+- Improv: Token based Auth(Stateless Tokens) ([d86b740](https://github.com/LouaieRbiha/Quiz_server/commit/d86b740532043040ef96d676f894acff18c8b773))
 
 
 ### Miscellaneous

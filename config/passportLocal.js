@@ -4,9 +4,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const bcrypt = require('bcrypt');
+const config = require('config');
 const { User } = require('../api/models/User');
-
-const BCRYPT_SALT_ROUNDS = 12;
 
 passport.use(
 	'signup',
@@ -20,7 +19,7 @@ passport.use(
 		async (req, username, password, done) => {
 			try {
 				const body = _.omit(req.body, ['username', 'password']);
-				const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
+				const salt = await bcrypt.genSalt(config.get('BCRYPT_SALT_ROUNDS'));
 				const hashedPassword = await bcrypt.hash(password, salt);
 				const userObj = {
 					...body,
@@ -43,10 +42,13 @@ passport.use(
 		{
 			usernameField: 'username',
 			passwordField: 'password',
+			session: false,
 		},
 		async (username, password, done) => {
 			try {
-				const user = await User.findOne({ $or: [{ username }, { email: username }] });
+				const user = await User.findOne({ $or: [{ username }, { email: username }] }).select(
+					'password',
+				);
 
 				if (!user) {
 					return done(null, false, { message: 'User not found' });
@@ -71,6 +73,7 @@ passport.use(
 		{
 			secretOrKey: 'secretFromConfig',
 			jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+			session: false,
 		},
 		async (token, done) => {
 			try {

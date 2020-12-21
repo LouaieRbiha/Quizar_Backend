@@ -5,6 +5,8 @@ const config = require('config');
 module.exports = async () => {
 	const db = config.get('DB');
 
+	mongoose.set('runValidators', true);
+
 	mongoose
 		.connect(db, {
 			useNewUrlParser: true,

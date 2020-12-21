@@ -23,9 +23,6 @@ const TokenSchema = new mongoose.Schema(
 		ip_address: {
 			type: String,
 		},
-		token_id: {
-			type: String,
-		},
 		token_secret: {
 			type: String,
 		},

@@ -2,6 +2,8 @@ const express = require('express');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const auth = require('../routes/auth');
+const tokens = require('../routes/tokens');
+const users = require('../routes/users');
 const error = require('../middlewares/error');
 
 module.exports = (app) => {
@@ -19,4 +21,6 @@ module.exports = (app) => {
 
 	// Routes
 	app.use('/api/v1/auth', auth);
+	app.use('/api/v1/tokens', tokens);
+	app.use('/api/v1/users', users);
 };
