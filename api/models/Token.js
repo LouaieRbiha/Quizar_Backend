@@ -33,6 +33,10 @@ const TokenSchema = new mongoose.Schema(
 		device: {
 			type: String,
 		},
+		geo: {
+			type: Object,
+			default: undefined,
+		},
 	},
 	{
 		timestamps: true, // will take care of createdAt & updatedAt

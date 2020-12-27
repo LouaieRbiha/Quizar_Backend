@@ -1,9 +1,19 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable security/detect-unsafe-regex */
 const mongoose = require('mongoose');
 const config = require('config');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
+const { Quiz } = require('./Quiz');
+const { Submission } = require('./Submission');
+const ErrorResponse = require('../utils/errorResponse');
 
+const userOptions = {
+	discriminatorKey: '__type',
+	collection: 'users',
+};
+
+// Discriminator use for different type of users
 const UserSchema = new mongoose.Schema(
 	{
 		firstname: {
@@ -64,8 +74,11 @@ const UserSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['admin', 'publisher', 'candidate'],
-			default: 'candidate',
+			enum: ['admin', 'examiner', 'examinee', 'recruiter'],
+		},
+		profession: {
+			type: String,
+			enum: ['', '', ''],
 		},
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
@@ -74,6 +87,7 @@ const UserSchema = new mongoose.Schema(
 		authorizations: {}, // probably use firebase for realtime stuff in frontend
 		statistics: {}, // can be a schema
 		lastActiveAt: {
+			// can we get that info from tokens
 			type: Date,
 			default: Date.now,
 		},
@@ -88,18 +102,27 @@ const UserSchema = new mongoose.Schema(
 			token: { type: String },
 			required: false,
 		},
+		field: [
+			{
+				type: String,
+				enum: [''],
+			},
+		],
 	},
 	{
-		timestamps: true, // will take care of createdAt & updatedAt
+		userOptions,
+		timestamps: true,
 	},
 );
 
+const User = mongoose.model('User', UserSchema);
+
 // Sign jwt and return
-UserSchema.methods.getSignedJwtToken = function () {
+User.schema.methods.getSignedJwtToken = function (id) {
 	return jwt.sign(
 		{
 			// eslint-disable-next-line no-underscore-dangle
-			id: this._id,
+			id,
 		},
 		config.get('JWT_SECRET'),
 		{
@@ -107,6 +130,41 @@ UserSchema.methods.getSignedJwtToken = function () {
 		},
 	);
 };
+
+/**
+ * Cascade delete quizzes when an examiner is deleted
+ * Can't delete an examinee if he has submissions
+ */
+User.schema.pre('remove', async function (next) {
+	if (this.role === 'examiner') {
+		let count = 0;
+		const quizzes = await Quiz.findById({ user: this._id });
+		quizzes.forEach(async (quiz) => {
+			const submissions = await Submission.find({ quiz: quiz._id });
+			if (submissions.length > 0) count += 1;
+		});
+		if (count === 0) {
+			await this.model('Quiz').deleteMany({ user: this._id });
+		} else {
+			next(
+				new ErrorResponse(
+					`User ${this._id} can not be removed due to his quizzes that have submissions in it`,
+				),
+				409,
+			);
+		}
+	}
+
+	if (this.role === 'examinee') {
+		const submissions = await Submission.find({ user: this._id });
+		if (submissions.length > 0)
+			next(
+				new ErrorResponse(`User ${this._id} can not be removed due to his recent submissions`),
+				409,
+			);
+	}
+	next();
+});
 
 function validateUser(user) {
 	const schema = Joi.object({
@@ -121,4 +179,4 @@ function validateUser(user) {
 }
 
 module.exports.validate = validateUser;
-module.exports.User = mongoose.model('User', UserSchema);
+module.exports.User = User;

@@ -6,6 +6,8 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const bcrypt = require('bcrypt');
 const config = require('config');
 const { User } = require('../api/models/User');
+const { Examinee } = require('../api/models/Examinee');
+const { Examiner } = require('../api/models/Examiner');
 
 passport.use(
 	'signup',
@@ -18,6 +20,7 @@ passport.use(
 		},
 		async (req, username, password, done) => {
 			try {
+				const { role } = req.body;
 				const body = _.omit(req.body, ['username', 'password']);
 				const salt = await bcrypt.genSalt(config.get('BCRYPT_SALT_ROUNDS'));
 				const hashedPassword = await bcrypt.hash(password, salt);
@@ -27,7 +30,8 @@ passport.use(
 					password: hashedPassword,
 				};
 
-				const user = await User.create(userObj);
+				const user =
+					role === 'examiner' ? await Examiner.create(userObj) : await Examinee.create(userObj);
 				return done(null, user);
 			} catch (error) {
 				done(error);

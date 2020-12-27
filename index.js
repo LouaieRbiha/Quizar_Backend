@@ -1,7 +1,6 @@
 const express = require('express');
 const config = require('config');
 const winston = require('winston');
-const geoip = require('geoip-lite');
 
 const app = express();
 
@@ -12,7 +11,6 @@ require('./api/startup/db')();
 require('./api/startup/config')();
 
 app.get('/', (req, res) => {
-	const geo = geoip.lookup(req.ip);
 	const localTime = new Date().toLocaleDateString();
 
 	res.header('Content-Type', 'application/json');
@@ -23,9 +21,6 @@ app.get('/', (req, res) => {
 		ip: JSON.stringify(req.ip),
 		browser: req.headers['user-agent'],
 		language: req.headers['accept-language'],
-		country: geo ? geo.country : 'Unknown',
-		region: geo ? geo.region : 'Unknown',
-		geo,
 	});
 });
 

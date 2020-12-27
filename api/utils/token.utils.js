@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const customId = require('custom-id');
 const config = require('config');
+const geoip = require('geoip-lite');
 const asyncHandler = require('../middlewares/async');
 const { Token } = require('../models/Token');
 
@@ -38,6 +39,7 @@ const createToken = async (req) => {
 		token_secret: tokenSecret,
 		ip_address: ip,
 		device: req.headers['user-agent'],
+		geo: geoip.lookup(ip),
 	});
 
 	// eslint-disable-next-line no-underscore-dangle

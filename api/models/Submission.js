@@ -4,20 +4,23 @@ const Joi = require('joi');
 const SubmissionSchema = new mongoose.Schema(
 	{
 		user: {
-			type: [mongoose.Schema.ObjectId],
+			type: mongoose.Schema.ObjectId,
 			ref: 'User',
 			required: true,
 		},
-		test: {
-			type: [mongoose.Schema.ObjectId],
-			ref: 'Test',
+		quiz: {
+			type: mongoose.Schema.ObjectId,
+			ref: 'Quiz',
 			required: true,
 		},
-
-		// can be negative (canadian system) ?
 		score: {
 			type: number,
 			default: 0,
+			validate: {
+				validator: (value) => {
+					if (value < 0) return 0;
+				},
+			},
 		},
 		hasPassed: {
 			type: Boolean,
@@ -25,7 +28,14 @@ const SubmissionSchema = new mongoose.Schema(
 		},
 		feedback: {
 			type: String,
+			minlength: 10,
+			maxlength: 1024,
 			default: undefined,
+		},
+		mode: {
+			type: String,
+			enum: ['default', 'anonyme'],
+			default: 'default',
 		},
 	},
 	{
@@ -36,7 +46,11 @@ const SubmissionSchema = new mongoose.Schema(
 function validateSubmission(submission) {
 	const schema = Joi.object({
 		user: Joi.objectId().required(),
-		test: Joi.objectId().required(),
+		quiz: Joi.objectId().required(),
+		score: Joi.number(),
+		hasPassed: Joi.boolean(),
+		feedback: Joi.string().min(10).max(1024),
+		mode: Joi.string(),
 	});
 
 	return schema.validate(submission);

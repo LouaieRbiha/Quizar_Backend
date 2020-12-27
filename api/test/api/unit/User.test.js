@@ -20,7 +20,7 @@ describe('JWT', () => {
 			_id: new mongoose.Types.ObjectId().toHexString(),
 		};
 		const user = new User(payload);
-		const token = user.getSignedJwtToken();
+		const token = user.schema.methods.getSignedJwtToken(payload._id);
 
 		const decoded = jwt.verify(token, config.get('JWT_SECRET'));
 

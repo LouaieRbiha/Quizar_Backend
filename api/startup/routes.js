@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 const auth = require('../routes/auth');
 const tokens = require('../routes/tokens');
 const users = require('../routes/users');
+const quiz = require('../routes/quiz');
+const submissions = require('../routes/submissions');
 const error = require('../middlewares/error');
 
 module.exports = (app) => {
@@ -23,4 +25,6 @@ module.exports = (app) => {
 	app.use('/api/v1/auth', auth);
 	app.use('/api/v1/tokens', tokens);
 	app.use('/api/v1/users', users);
+	app.use('/api/v1/quiz', quiz);
+	app.use('/api/v1/submissions', submissions);
 };
