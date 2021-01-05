@@ -16,6 +16,8 @@ const {
 	callbackLinkedin,
 
 	getMe,
+	refreshToken,
+	revokeRefreshToken,
 	logout,
 } = require('../controllers/auth');
 
@@ -35,6 +37,8 @@ router.route('/linkedin/callback').get(callbackLinkedin, generateToken, sendToke
 
 // Others
 router.route('/me').get(protect, getMe);
+router.route('/refresh').post(refreshToken);
+router.route('/revoke/:id').post(protect, authorize('admin'), revokeRefreshToken);
 router.route('/logout').get(protect, logout);
 
 module.exports = router;

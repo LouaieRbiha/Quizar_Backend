@@ -8,7 +8,6 @@ const {
 	updateSubmission,
 	updateSubmissions,
 	deleteSubmission,
-	deleteSubmissions,
 	addSubmission,
 } = require('../controllers/submission');
 
@@ -28,8 +27,7 @@ router
 		getSubmissions,
 	)
 	.post(authorize('admin', 'examinee'), addSubmission)
-	.patch(updateSubmissions)
-	.delete(deleteSubmissions);
+	.patch(updateSubmissions);
 
 router
 	.route('/:id')

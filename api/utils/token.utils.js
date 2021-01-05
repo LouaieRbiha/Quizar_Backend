@@ -1,11 +1,12 @@
+/* eslint-disable no-underscore-dangle */
 const jwt = require('jsonwebtoken');
-const customId = require('custom-id');
 const config = require('config');
 const geoip = require('geoip-lite');
 const asyncHandler = require('../middlewares/async');
 const { Token } = require('../models/Token');
+const { User } = require('../models/User');
 
-const createToken = async (req) => {
+const createToken = async (req, res) => {
 	const ip =
 		(req.headers['x-forwarded-for'] || '').split(',').pop().trim() ||
 		req.connection.remoteAddress ||
@@ -13,13 +14,12 @@ const createToken = async (req) => {
 		req.connection.socket.remoteAddress;
 
 	const userLogin = await Token.find({
-		where: {
-			user: req.auth.id,
-			token_deleted: false,
-			ip_address: ip,
-			device: req.headers['user-agent'],
-		},
+		user: req.user.id,
+		token_deleted: false,
+		ip_address: ip,
+		device: req.headers['user-agent'],
 	});
+
 	userLogin.forEach(async (login) => {
 		if (login) {
 			// eslint-disable-next-line no-param-reassign
@@ -28,40 +28,42 @@ const createToken = async (req) => {
 		}
 	});
 
-	const tokenSecret = await customId({
-		token_secret: ip,
-		date: Date.now(),
-		randomLength: 8,
-	});
-
-	const token = await Token.create({
-		user: req.auth.id,
-		token_secret: tokenSecret,
+	await Token.create({
+		user: req.user._id,
 		ip_address: ip,
 		device: req.headers['user-agent'],
 		geo: geoip.lookup(ip),
 	});
 
-	// eslint-disable-next-line no-underscore-dangle
-	const tokenUser = { id: req.auth.id, token_id: token._id };
-	const accessToken = await jwt.sign(tokenUser, config.get('JWT_SECRET'));
+	console.log(req.user.tokenVersion);
+	const user = await User.findById(req.user._id);
+	if (!user) return next(new ErrorResponse(`Ressource not found with id ${req.user._id}`, 404));
+
+	const userToken = { id: req.user._id, version: user.tokenVersion };
+
+	const refreshToken = await jwt.sign(userToken, config.get('JWT.REFRESH_TOKEN.SECRET'), {
+		expiresIn: config.get('JWT.REFRESH_TOKEN.EXPIRE'),
+	});
+	res.cookie('jid', refreshToken, { httpOnly: true });
+
+	const accessToken = await jwt.sign(userToken, config.get('JWT.ACCESS_TOKEN.SECRET'), {
+		expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
+	});
+
+	console.log('refreshToken :>> ', refreshToken);
+	console.log('accessToken :>> ', accessToken);
 	return accessToken;
 };
 
 const generateToken = asyncHandler(async (req, res, next) => {
-	req.token = await createToken(req);
+	req.token = await createToken(req, res);
 	return next();
 });
 
 const sendToken = asyncHandler(async (req, res) => {
-	if (req.auth.register === false) {
-		message = 'user found & logged in';
-	} else {
-		message = 'user created';
-	}
-	const accessToken = { auth: true, token: req.token, message };
-
+	const accessToken = { token: req.token };
 	res.setHeader('x-auth-token', req.token);
+
 	return res.status(200).json(accessToken);
 });
 
