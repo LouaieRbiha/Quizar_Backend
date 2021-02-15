@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const passport = require('passport');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const config = require('config');
 const Crypto = require('crypto');
 const ErrorResponse = require('../utils/errorResponse');
@@ -30,11 +31,6 @@ module.exports.signinLocal = asyncHandler(async (req, res, next) => {
 			}
 
 			req.user = user;
-			req.auth = {
-				id: req.user.id,
-				register: false,
-			};
-
 			next();
 		} catch (error) {
 			return next(new ErrorResponse(error.message, error.statusCode));
@@ -113,6 +109,7 @@ module.exports.resetPassword = asyncHandler(async (req, res, next) => {
  */
 module.exports.authenticateGoogle = passport.authenticate('google', {
 	scope: ['openid', 'email', 'profile'],
+	// accessType: 'offline',
 });
 
 /**
@@ -129,10 +126,6 @@ module.exports.callbackGoogle = asyncHandler(async (req, res, next) => {
 				return next(new ErrorResponse(errorMessage, statusCode));
 			}
 			req.user = user;
-			req.auth = {
-				id: req.user.id,
-				register: false,
-			};
 			next();
 		} catch (error) {
 			return next(new ErrorResponse(error.message, error.statusCode));
@@ -163,10 +156,6 @@ module.exports.callbackLinkedin = asyncHandler(async (req, res, next) => {
 				return next(new ErrorResponse(errorMessage, statusCode));
 			}
 			req.user = user;
-			req.auth = {
-				id: req.user.id,
-				register: false,
-			};
 			next();
 		} catch (error) {
 			return next(new ErrorResponse(error.message, error.statusCode));
@@ -195,6 +184,67 @@ module.exports.getMe = asyncHandler(async (req, res) => {
 		}
 	});
 	return res.status(200).send({ user, tokens, current, count: tokens.length });
+});
+
+/**
+ * @description Refresh token
+ * @method      POST /api/v1/auth/refresh
+ * @access      Private [every app user]
+ */
+module.exports.refreshToken = asyncHandler(async (req, res) => {
+	const jidToken = req.cookies.jid;
+	if (!token) return res.send({ accessToken: '' });
+
+	jwt.verify(jidToken, config.get('JWT.REFRESH_TOKEN.SECRET'), async (err, payload) => {
+		if (err) return res.sendStatus(403);
+		if (payload) {
+			const user = await User.findById(payload.id);
+			if (!user) return next(new ErrorResponse(`Ressource with id ${user._id} not found`, 404));
+
+			// what about the Token id (model)
+
+			// if the versions missmatch => the token have been revoked => can not use them anymore
+			if (user.tokenVersion !== payload.version) return res.send({ accessToken: '' });
+
+			// refresh the REFRESH_TOKEN if the users continue to use the website
+			const refreshToken = await jwt.sign(
+				{ id: payload.id, version: user.tokenVersion },
+				config.get('JWT.REFRESH_TOKEN.SECRET'),
+			);
+			res.cookies('jid', refreshToken, {
+				httpOnly: true,
+			});
+
+			// Send a new ACCESS_TOKEN
+			const accessToken = await jwt.sign(payload.id, config.get('JWT.ACCESS_TOKEN.SECRET'));
+			return res.send({ accessToken });
+		}
+	});
+});
+/**
+ * @description Revoke refresh tokens
+ * @method      GET /api/v1/auth/revoke/:id
+ * @access      Private [Admin]
+ */
+module.exports.revokeRefreshToken = asyncHandler(async (req, res) => {
+	/**
+	 * if user :
+	 * 		get hacked
+	 * 		forgot password
+	 * 		did not login for a long time
+	 * they can still use the app (amount of expire in access token ex : 15 minutes)
+	 */
+	const user = await User.findById(req.params.id);
+	if (!user) return next(new ErrorResponse(`Ressource with id ${user._id} not found`, 404));
+
+	user.tokenVersion += 1;
+	await user.save();
+	res.send({
+		success: true,
+		message: `Previous tokens for the user ${user._id} with version ${
+			user.tokenVersion - 1
+		} are not accessible anymore`,
+	});
 });
 
 /**

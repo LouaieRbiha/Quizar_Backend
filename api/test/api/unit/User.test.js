@@ -22,7 +22,7 @@ describe('JWT', () => {
 		const user = new User(payload);
 		const token = user.schema.methods.getSignedJwtToken(payload._id);
 
-		const decoded = jwt.verify(token, config.get('JWT_SECRET'));
+		const decoded = jwt.verify(token, config.get('JWT.ACCESS_TOKEN.SECRET'));
 
 		// not matching objects in order not to deal with expire...
 		// expect(decoded).toMatchObject(payload);

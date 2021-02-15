@@ -19,6 +19,7 @@ passport.use(
 				if (existingUser) {
 					return done(null, existingUser);
 				}
+
 				const user = await new User({
 					firstname: profile._json.given_name,
 					lastname: profile._json.family_name,
@@ -29,6 +30,7 @@ passport.use(
 				}).save();
 				return done(null, user);
 			} catch (err) {
+				console.log('error :>> ', err);
 				done(err, null);
 			}
 		},

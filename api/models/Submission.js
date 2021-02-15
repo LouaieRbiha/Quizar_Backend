@@ -14,7 +14,7 @@ const SubmissionSchema = new mongoose.Schema(
 			required: true,
 		},
 		score: {
-			type: number,
+			type: Number,
 			default: 0,
 			validate: {
 				validator: (value) => {

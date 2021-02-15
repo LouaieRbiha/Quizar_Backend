@@ -108,6 +108,10 @@ const UserSchema = new mongoose.Schema(
 				enum: [''],
 			},
 		],
+		tokenVersion: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{
 		userOptions,
@@ -117,18 +121,11 @@ const UserSchema = new mongoose.Schema(
 
 const User = mongoose.model('User', UserSchema);
 
-// Sign jwt and return
-User.schema.methods.getSignedJwtToken = function (id) {
-	return jwt.sign(
-		{
-			// eslint-disable-next-line no-underscore-dangle
-			id,
-		},
-		config.get('JWT_SECRET'),
-		{
-			expiresIn: config.get('JWT_EXPIRE'),
-		},
-	);
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = function () {
+	return jwt.sign({ id: this._id }, config.get('JWT.ACCESS_TOKEN.SECRET'), {
+		expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
+	});
 };
 
 /**

@@ -10,6 +10,7 @@ module.exports = (app) => {
 	// Provide a Connect/Express middleware
 	const corsOptions = {
 		origin: '*',
+		'Access-Control-Allow-Origin': '*',
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 		preflightContinue: false,
 		optionsSuccessStatus: 204,
