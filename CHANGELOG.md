@@ -1,6 +1,5 @@
 # 1.0.0 (2021-02-15)
 
-
 ### Features
 
 - Feat: Add Auth, User, Token Routes ([aa9bf61](https://github.com/LouaieRbiha/Quiz_server/commit/aa9bf61561951d10d91fb9f222da332067ffc37f))
@@ -8,15 +7,13 @@
 - Feat: Add User & Test Models ([a9c28a2](https://github.com/LouaieRbiha/Quiz_server/commit/a9c28a2126865741834be33ba7c275383df56e86))
 - Feat: User discriminators ([d5e423a](https://github.com/LouaieRbiha/Quiz_server/commit/d5e423a5b3253421bfc67043146eea589649c860))
 
-
 ### Refactoring & Improvements
 
 - Improv: Token based Auth(Stateless Tokens) ([d86b740](https://github.com/LouaieRbiha/Quiz_server/commit/d86b740532043040ef96d676f894acff18c8b773))
 
-
 ### Miscellaneous
 
-- ✨Feat:  User refresh token ([f24cc9e](https://github.com/LouaieRbiha/Quiz_server/commit/f24cc9ed97ba3ea1adb6e3e09c1b9d5670186137))
+- ✨Feat: User refresh token ([f24cc9e](https://github.com/LouaieRbiha/Quiz_server/commit/f24cc9ed97ba3ea1adb6e3e09c1b9d5670186137))
 - ✨Feat: Add User, Token & Auth Routes ([de28387](https://github.com/LouaieRbiha/Quiz_server/commit/de283871f545d4ea00b1fe14e296ba50cfa3152a))
 - Bump ini from 1.3.5 to 1.3.8 ([e65b6b8](https://github.com/LouaieRbiha/Quiz_server/commit/e65b6b83f08604673cb231e12f93356db27a6d6c))
 - Bump node-notifier from 8.0.0 to 8.0.1 ([d36458a](https://github.com/LouaieRbiha/Quiz_server/commit/d36458a3ef09cadd59af6139f006eb24db40cd77))
@@ -31,4 +28,3 @@
 - Jest configs && compression ([8676675](https://github.com/LouaieRbiha/Quiz_server/commit/8676675a2314ab0cd237102152da363a51c110f2))
 - Logout route fix ([9439936](https://github.com/LouaieRbiha/Quiz_server/commit/94399364fd8319d099c8588d63471f7e9e8a541f))
 - Server setup ([5afb8c0](https://github.com/LouaieRbiha/Quiz_server/commit/5afb8c08f97e81987f70822d9c271bc6c185e07a))
-
