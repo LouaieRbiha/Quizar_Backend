@@ -13,6 +13,7 @@
 
 ### Refactoring & Improvements
 
+- Improv: Cookie based auth and user models ([edcc78a](https://github.com/LouaieRbiha/Quiz_server/commit/edcc78a24527fac25aa5e16f8b7522638ebc7337))
 - Improv: Token based Auth(Stateless Tokens) ([d86b740](https://github.com/LouaieRbiha/Quiz_server/commit/d86b740532043040ef96d676f894acff18c8b773))
 
 

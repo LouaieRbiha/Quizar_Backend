@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const cors = require('cors');
 const helmet = require('helmet');
 const xss = require('xss-clean');
@@ -5,6 +6,13 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
+
+const csrfProtection = csurf({
+	cookie: true,
+	ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+});
 
 module.exports = (app) => {
 	// Provide a Connect/Express middleware
@@ -18,7 +26,17 @@ module.exports = (app) => {
 		credentials: true,
 	};
 
+	// CORS Headers
 	app.use(cors(corsOptions));
+
+	// Cookie parser
+	app.use(cookieParser());
+
+	// CSRF Protection
+	app.use(csrfProtection, (req, res, next) => {
+		res.cookie('XSRF-TOKEN', req.csrfToken(), { httpOnly: false, Path: '/' });
+		next();
+	});
 
 	// Security headers
 	app.use(helmet());
