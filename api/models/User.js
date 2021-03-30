@@ -16,6 +16,7 @@ const userOptions = {
 // Discriminator use for different type of users
 const UserSchema = new mongoose.Schema(
 	{
+		// Personal information
 		firstname: {
 			type: String,
 			required: [true, 'Please add a first name'],
@@ -43,6 +44,44 @@ const UserSchema = new mongoose.Schema(
 			minlength: 3,
 			maxlength: 255,
 		},
+		birthdate: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+		gender: {
+			type: String,
+			enum: ['man', 'woman'],
+		},
+		picture: {
+			type: String,
+		},
+		phone: {
+			type: String,
+		},
+		address: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+		occupation: {
+			type: String,
+			enum: ['', '', ''],
+		},
+		companyName: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+		socialNetworks: {}, // need a model to follow frontend
+		documents: {}, // string urls of the uploaded files (schema)
+		webiste: {
+			type: String,
+			trim: true,
+			lowercase: true,
+		},
+
+		// Account information
 		username: {
 			type: String,
 			trim: true,
@@ -56,42 +95,26 @@ const UserSchema = new mongoose.Schema(
 			maxlength: 1024,
 			select: false,
 		},
-		birthdate: {
-			type: String,
-		},
-		picture: {
-			type: String,
-			default: 'https://www.cvwizard.fr/assets/images/default-avatar.png',
-		},
-		gender: {
-			type: String,
-			enum: ['man', 'woman'],
-		},
-		address: {
-			type: String,
-			trim: true,
-			lowercase: true,
-		},
 		role: {
 			type: String,
 			enum: ['admin', 'examiner', 'examinee', 'recruiter'],
 		},
-		profession: {
-			type: String,
-			enum: ['', '', ''],
-		},
+		language: {},
+		timezone: {},
+		statistics: {}, // can be a schema
+		achievements: {}, // can be a schema
+		communication: {}, // can be a schema
+		emailSettings: {}, // can be a schema
+
+		// Server related stuff
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
-		documents: {}, // string urls of the uploaded files
-		timezone: {},
 		authorizations: {}, // probably use firebase for realtime stuff in frontend
-		statistics: {}, // can be a schema
 		lastActiveAt: {
 			// can we get that info from tokens
 			type: Date,
 			default: Date.now,
 		},
-		achievements: {}, // can be a schema
 		google: {
 			id: { type: String },
 			token: { type: String },
@@ -102,15 +125,34 @@ const UserSchema = new mongoose.Schema(
 			token: { type: String },
 			required: false,
 		},
-		field: [
-			{
-				type: String,
-				enum: [''],
-			},
-		],
+		// field: [
+		// 	{
+		// 		type: String,
+		// 		enum: [''],
+		// 	},
+		// ],
 		tokenVersion: {
 			type: Number,
 			default: 0,
+		},
+		accountLocked: {
+			type: Boolean,
+			default: false,
+		},
+		badPasswordCount: {
+			type: Number,
+			default: 0,
+		},
+		changePasswordDate: {
+			type: Date,
+		},
+		forceChangePassword: {
+			type: Boolean,
+			default: false,
+		},
+		passwordHistory: {
+			type: [String],
+			default: [''],
 		},
 	},
 	{

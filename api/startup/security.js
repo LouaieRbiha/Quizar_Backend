@@ -9,13 +9,13 @@ const compression = require('compression');
 module.exports = (app) => {
 	// Provide a Connect/Express middleware
 	const corsOptions = {
-		origin: '*',
+		origin: 'http://localhost:4200',
+		'Content-Type': 'application/json',
 		'Access-Control-Allow-Origin': '*',
-		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTION',
 		preflightContinue: false,
 		optionsSuccessStatus: 204,
 		credentials: true,
-		exposeHeaders: ['x-auth-token'],
 	};
 
 	app.use(cors(corsOptions));

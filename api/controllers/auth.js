@@ -183,6 +183,7 @@ module.exports.getMe = asyncHandler(async (req, res) => {
 			current = t;
 		}
 	});
+
 	return res.status(200).send({ user, tokens, current, count: tokens.length });
 });
 

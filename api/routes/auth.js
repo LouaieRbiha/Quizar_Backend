@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateToken, sendToken } = require('../utils/token.utils');
+const { generateToken, sendToken, redirect } = require('../utils/token.utils');
 const { protect, authorize } = require('../middlewares/auth');
 
 const router = express.Router();
@@ -29,11 +29,11 @@ router.route('/resetPassword/:resetPasswordToken').patch(resetPassword);
 
 // Google
 router.route('/google').get(authenticateGoogle);
-router.route('/google/callback').get(callbackGoogle, generateToken, sendToken);
+router.route('/google/callback').get(callbackGoogle, generateToken, redirect);
 
 // LinkedIn
 router.route('/linkedin').get(authenticateLinkedin);
-router.route('/linkedin/callback').get(callbackLinkedin, generateToken, sendToken);
+router.route('/linkedin/callback').get(callbackLinkedin, generateToken, redirect);
 
 // Others
 router.route('/me').get(protect, getMe);

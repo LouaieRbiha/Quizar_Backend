@@ -6,6 +6,12 @@ const asyncHandler = require('../middlewares/async');
 const { Token } = require('../models/Token');
 const { User } = require('../models/User');
 
+const options = {
+	httpOnly: true, // client can't get cookie by script
+	secure: true, // only transfer over https
+	sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+};
+
 const createToken = async (req, res) => {
 	const ip =
 		(req.headers['x-forwarded-for'] || '').split(',').pop().trim() ||
@@ -35,7 +41,6 @@ const createToken = async (req, res) => {
 		geo: geoip.lookup(ip),
 	});
 
-	console.log(req.user.tokenVersion);
 	const user = await User.findById(req.user._id);
 	if (!user) return next(new ErrorResponse(`Ressource not found with id ${req.user._id}`, 404));
 
@@ -44,28 +49,37 @@ const createToken = async (req, res) => {
 	const refreshToken = await jwt.sign(userToken, config.get('JWT.REFRESH_TOKEN.SECRET'), {
 		expiresIn: config.get('JWT.REFRESH_TOKEN.EXPIRE'),
 	});
-	res.cookie('jid', refreshToken, { httpOnly: true });
+	res.cookie('jidr', refreshToken, { ...options, maxAge: 1000 * 3600 * 24 * 7 });
 
 	const accessToken = await jwt.sign(userToken, config.get('JWT.ACCESS_TOKEN.SECRET'), {
 		expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
 	});
 
-	// console.log('Utils: refreshToken :>> ', refreshToken);
-	// console.log('Utils: accessToken :>> ', accessToken);
-	return accessToken;
+	res.cookie('jida', accessToken, { ...options, maxAge: 1000 * 60 * 15 });
+	// res.setHeader('x-auth-token', accessToken);
+
+	const auth = {
+		accessToken,
+		refreshToken,
+		expiresIn: new Date().setTime(new Date().getTime() + 1000 * 60 * 15),
+	};
+
+	return auth;
 };
 
 const generateToken = asyncHandler(async (req, res, next) => {
-	req.token = await createToken(req, res);
+	req.auth = await createToken(req, res);
 	return next();
 });
 
 const sendToken = asyncHandler(async (req, res) => {
-	const accessToken = { token: req.token };
-	res.setHeader('x-auth-token', req.token);
+	return res.status(200).json(req.auth);
+});
 
-	return res.status(200).json(accessToken);
+const redirect = asyncHandler(async (req, res) => {
+	return res.status(200).redirect('http://localhost:4200/dashboard/');
 });
 
 module.exports.generateToken = generateToken;
 module.exports.sendToken = sendToken;
+module.exports.redirect = redirect;
