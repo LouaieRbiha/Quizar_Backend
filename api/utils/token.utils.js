@@ -55,7 +55,7 @@ const createToken = async (req, res) => {
 		expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
 	});
 
-	res.cookie('jida', accessToken, { ...options, maxAge: 1000 * 60 * 15 });
+	res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
 	// res.setHeader('x-auth-token', accessToken);
 
 	const auth = {

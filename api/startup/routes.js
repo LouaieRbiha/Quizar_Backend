@@ -7,6 +7,8 @@ const users = require('../routes/users');
 const quiz = require('../routes/quiz');
 const submissions = require('../routes/submissions');
 const error = require('../middlewares/error');
+const errorHandler = require('../middlewares/error');
+
 
 module.exports = (app) => {
 	// Body parser
@@ -27,4 +29,6 @@ module.exports = (app) => {
 	app.use('/api/v1/users', users);
 	app.use('/api/v1/quiz', quiz);
 	app.use('/api/v1/submissions', submissions);
+
+	app.use(errorHandler);
 };

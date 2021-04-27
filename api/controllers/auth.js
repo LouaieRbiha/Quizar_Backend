@@ -25,8 +25,8 @@ module.exports.signinLocal = asyncHandler(async (req, res, next) => {
 	passport.authenticate('signin', async (err, user, info) => {
 		try {
 			if (err || !user) {
-				const errorMessage = err !== null ? err.message : 'Please provide a valid user credentials';
-				const statusCode = err != null ? err.statusCode : 400;
+				const errorMessage = err ? err.message : 'Please provide a valid user credentials';
+				const statusCode = err ? err.statusCode : 400;
 				return next(new ErrorResponse(errorMessage, statusCode));
 			}
 
@@ -184,7 +184,8 @@ module.exports.getMe = asyncHandler(async (req, res) => {
 		}
 	});
 
-	return res.status(200).send({ user, tokens, current, count: tokens.length });
+	// return res.status(200).send({ user, tokens, current, count: tokens.length });
+	return res.status(200).send(user);
 });
 
 /**
@@ -192,36 +193,46 @@ module.exports.getMe = asyncHandler(async (req, res) => {
  * @method      POST /api/v1/auth/refresh
  * @access      Private [every app user]
  */
-module.exports.refreshToken = asyncHandler(async (req, res) => {
-	const jidToken = req.cookies.jid;
-	if (!token) return res.send({ accessToken: '' });
+module.exports.refreshToken = asyncHandler(async (req, res, next) => {
 
-	jwt.verify(jidToken, config.get('JWT.REFRESH_TOKEN.SECRET'), async (err, payload) => {
+	const options = {
+		httpOnly: true, // client can't get cookie by script
+		secure: true, // only transfer over https
+		sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+	};
+
+	const jidrToken = req.cookies.jidr;
+	if (!jidrToken) return next(new ErrorResponse(`Cannot refresh this token`, 401));
+
+	jwt.verify(jidrToken, config.get('JWT.REFRESH_TOKEN.SECRET'), async (err, payload) => {
 		if (err) return res.sendStatus(403);
 		if (payload) {
+
+			const { id, version } = payload;
+
 			const user = await User.findById(payload.id);
 			if (!user) return next(new ErrorResponse(`Ressource with id ${user._id} not found`, 404));
 
-			// what about the Token id (model)
-
 			// if the versions missmatch => the token have been revoked => can not use them anymore
-			if (user.tokenVersion !== payload.version) return res.send({ accessToken: '' });
+			if (user.tokenVersion !== payload.version) return next(new ErrorResponse('Access revoked', 401));
 
-			// refresh the REFRESH_TOKEN if the users continue to use the website
-			const refreshToken = await jwt.sign(
-				{ id: payload.id, version: user.tokenVersion },
-				config.get('JWT.REFRESH_TOKEN.SECRET'),
-			);
-			res.cookies('jid', refreshToken, {
-				httpOnly: true,
+			req.user = user;
+			const refreshToken = await jwt.sign({ id, version }, config.get('JWT.REFRESH_TOKEN.SECRET'), {
+				expiresIn: config.get('JWT.REFRESH_TOKEN.EXPIRE'),
+			});
+			res.cookie('jidr', refreshToken, { ...options, maxAge: 1000 * 3600 * 24 * 7 });
+
+			const accessToken = await jwt.sign({ id, version }, config.get('JWT.ACCESS_TOKEN.SECRET'), {
+				expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
 			});
 
-			// Send a new ACCESS_TOKEN
-			const accessToken = await jwt.sign(payload.id, config.get('JWT.ACCESS_TOKEN.SECRET'));
-			return res.send({ accessToken });
-		}
+			res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
+			res.send({ success: true, message: 'Successfully refreshed' });
+		} else return next(new ErrorResponse(`Cannot refresh this token`, 401));
+
 	});
 });
+
 /**
  * @description Revoke refresh tokens
  * @method      GET /api/v1/auth/revoke/:id
@@ -242,9 +253,8 @@ module.exports.revokeRefreshToken = asyncHandler(async (req, res) => {
 	await user.save();
 	res.send({
 		success: true,
-		message: `Previous tokens for the user ${user._id} with version ${
-			user.tokenVersion - 1
-		} are not accessible anymore`,
+		message: `Previous tokens for the user ${user._id} with version ${user.tokenVersion - 1
+			} are not accessible anymore`,
 	});
 });
 
@@ -253,11 +263,32 @@ module.exports.revokeRefreshToken = asyncHandler(async (req, res) => {
  * @method      GET /api/v1/auth/logout
  * @access      Private
  */
-module.exports.logout = asyncHandler(async (req, res) => {
-	const token = await Token.findById(ObjectId(req.token));
+module.exports.logout = asyncHandler(async (req, res, next) => {
+	const jidtoken = req.cookies.jida;
+	if (!jidtoken) return next(new ErrorResponse(`Token not found`, 404));
+
+	const token = await Token.find({ user: ObjectId(req.user._id) });
+	if (!token) return next(new ErrorResponse(`Token not found`, 404));
+
 	token.logged_out = true;
 	token.logged_out_at = Date.now();
-	token.save();
+	Token.updateOne(token);
+
+	res.cookie('jida', null, {
+		httpOnly: true,
+		secure: true,
+		sameSite: true,
+		maxAge: 0
+	});
+
+	res.cookie('jidr', null, {
+		httpOnly: true,
+		secure: true,
+		sameSite: true,
+		maxAge: 0
+	});
+
 	req.logout();
-	return res.json({ message: 'Logged out successfully.' });
+
+	return res.json({ success: true, message: 'Logged out successfully.' });
 });

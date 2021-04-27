@@ -25,7 +25,7 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
 	if (!token) return next(new ErrorResponse('Unauthorized token', 401));
 
 	jwt.verify(token, config.get('JWT.ACCESS_TOKEN.SECRET'), async (err, payload) => {
-		if (err) return next(new ErrorResponse('Unauthorized token', 401));
+		if (err) return next(new ErrorResponse('Token expired', 401));
 		if (payload) {
 			const user = await User.findById(payload.id);
 			if (!user) return next(new ErrorResponse(`Ressource not found with id ${payload.id}`, 401));
