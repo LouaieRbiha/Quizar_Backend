@@ -226,8 +226,8 @@ module.exports.refreshToken = asyncHandler(async (req, res, next) => {
 				expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
 			});
 
-			res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
-			res.send({ success: true, message: 'Successfully refreshed' });
+			// res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
+			res.send({ token: accessToken });
 		} else return next(new ErrorResponse(`Cannot refresh this token`, 401));
 
 	});
@@ -264,22 +264,6 @@ module.exports.revokeRefreshToken = asyncHandler(async (req, res) => {
  * @access      Private
  */
 module.exports.logout = asyncHandler(async (req, res, next) => {
-	const jidtoken = req.cookies.jida;
-	if (!jidtoken) return next(new ErrorResponse(`Token not found`, 404));
-
-	const token = await Token.find({ user: ObjectId(req.user._id) });
-	if (!token) return next(new ErrorResponse(`Token not found`, 404));
-
-	token.logged_out = true;
-	token.logged_out_at = Date.now();
-	Token.updateOne(token);
-
-	res.cookie('jida', null, {
-		httpOnly: true,
-		secure: true,
-		sameSite: true,
-		maxAge: 0
-	});
 
 	res.cookie('jidr', null, {
 		httpOnly: true,
@@ -287,6 +271,13 @@ module.exports.logout = asyncHandler(async (req, res, next) => {
 		sameSite: true,
 		maxAge: 0
 	});
+
+	const token = await Token.find({ user: ObjectId(req.user._id) });
+	if (!token) return next(new ErrorResponse(`Token not found`, 404));
+
+	token.logged_out = true;
+	token.logged_out_at = Date.now();
+	Token.updateOne(token);
 
 	req.logout();
 

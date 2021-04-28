@@ -55,16 +55,16 @@ const createToken = async (req, res) => {
 		expiresIn: config.get('JWT.ACCESS_TOKEN.EXPIRE'),
 	});
 
-	res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
+	// res.cookie('jida', accessToken, { ...options, /*maxAge: 1000 * 60 * 15*/ });
 	// res.setHeader('x-auth-token', accessToken);
 
-	const auth = {
-		accessToken,
-		refreshToken,
-		expiresIn: new Date().setTime(new Date().getTime() + 1000 * 60 * 15),
-	};
+	// const auth = {
+	// 	accessToken,
+	// 	refreshToken,
+	// 	expiresIn: new Date().setTime(new Date().getTime() + 1000 * 60 * 15),
+	// };
 
-	return auth;
+	return accessToken;
 };
 
 const generateToken = asyncHandler(async (req, res, next) => {

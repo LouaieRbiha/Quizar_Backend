@@ -1,33 +1,33 @@
 {
 	"PORT": "3000",
-	"DB": "",
+	"DB": "mongodb://localhost/dev_db",
 	"DEBUG": "express",
-	"SECRET": "",
+	"SECRET": "deepDarkSecret",
 	"JWT": {
 		"ACCESS_TOKEN": {
-			"SECRET": "",
-			"EXPIRE": "30min"
+			"SECRET": "9359AE5760EBE1C88ACA771AEDFA272E93E55E2F0C622E6E1E3AB2318EA7FD14",
+			"EXPIRE": "5s"
 		},
 		"REFRESH_TOKEN": {
-			"SECRET": "",
-			"EXPIRE": "15d"
+			"SECRET": "8450BD4005E312A2DE3FAAE59647C42D03F502CCB987D80B300958E599120576",
+			"EXPIRE": "7d"
 		}
 	},
 	"BCRYPT_SALT_ROUNDS": 12,
 	"REDIS": {
 		"PORT": "6379",
 		"HOSTNAME": "localhost",
-		"PASSWORD": ""
+		"PASSWORD": "rMt3jx5xfDcnOFMvVm+G6q1iN2h3A2tT3Eg2Ww7OGZ5+DOTgtSkEWblBof7iW2V9eqDuLnn9VVMG0dUZlouaie@louaie-X556UV"
 	},
 	"OAuth": {
-		"GOOGLE_CLIENT_ID": "",
-		"GOOGLE_CLIENT_SECRET": "",
-		"COOKIE_KEY": "",
+		"GOOGLE_CLIENT_ID": "130228690168-jsvc2kf2grcvrs40d1appsf2j6cpbmcj.apps.googleusercontent.com",
+		"GOOGLE_CLIENT_SECRET": "L5eG553qfsbt8PUFZ1vuq4Vi",
+		"COOKIE_KEY": "123123123",
 		"GOOGLE_CALLBACK": "/api/v1/auth/google/callback"
 	},
 	"LINKEDIN": {
-		"CLIENT_ID": "",
-		"CLIENT_SECRET": "",
+		"CLIENT_ID": "77m0x597tuwsdt",
+		"CLIENT_SECRET": "cejbvMYX0TxMSK7Q",
 		"CALLBACK": "/api/v1/auth/linkedin/callback"
 	}
 }
